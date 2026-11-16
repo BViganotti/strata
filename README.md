@@ -196,7 +196,7 @@ executed. Paths are resolved to directories, which become graph nodes.
 | Go | `import` blocks and single imports | `go.mod` module path, package directories |
 | TypeScript / JavaScript | `import ... from`, `export ... from`, `require()`, dynamic `import()` | relative paths, extensions, `index.*` |
 | Python | `import`, `from ... import` | relative dots, packages, `__init__.py` |
-| C / C++ | `#include "..."` | file-relative, repository-relative |
+| C / C++ | `#include "..."` | file-relative, repository-relative, unique path suffix |
 | Rust | `mod`, `use crate::`, `use self::`, `use super::` | `src/` layout, `mod.rs` |
 | Java / Kotlin | `import ...;` | package paths |
 
@@ -235,7 +235,8 @@ Known limits, all on the [roadmap](ROADMAP.md):
 - Nodes are directories. A flat `src/` collapses into a single node; projects
   with subdirectories produce the most useful graphs.
 - Import resolution is heuristic. TypeScript path aliases, Go build tags,
-  C++ include directories, and conditional imports are not modelled yet.
+  and conditional imports are not modelled yet. C++ include directories are
+  approximated by a unique path suffix.
 - History is first-parent. Merge commits are frames, but side-branch commits
   are not ingested.
 - Configuration is read from the working tree, not from the commit being

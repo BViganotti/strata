@@ -80,13 +80,18 @@ The extractors are intentionally small scans, not parsers:
   dots for relative imports. Multi-line backslash continuations are handled at
   the line level.
 - **C/C++**: `#include "local.h"` only. Angle-bracket includes are treated as
-  system headers and ignored.
+  system headers and ignored. A unique path suffix stands in for include
+  directories.
 - **Rust**: `mod name;`, `use crate::…`, `use self::…`, `use super::…`.
 - **Java/Kotlin**: `import` statements, including `static` imports.
 
 The resolver is deliberately conservative: a relative TypeScript specifier must
 match a real file (with a known extension or `index.*`), a Go import must start
-with the module path, and an unresolved specifier produces no edge.
+with the module path, and an unresolved specifier produces no edge. C and C++
+are the exception: after exact file-relative and root-relative lookups, a unique
+path suffix is accepted (`"core.hpp"` may mean `src/core.hpp`), because most C++
+builds add include directories. If several files match, the candidate whose
+directory shares the longest prefix with the including file wins.
 
 ## Ratchet semantics
 

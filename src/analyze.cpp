@@ -55,11 +55,11 @@ bool hasFile(const std::set<std::string>& files, const std::string& path) {
 }
 
 // Resolves an import specifier to a directory that exists in this snapshot.
-std::string resolveImport(Lang lang, const std::string& file,
-                          const std::string& spec,
-                          const std::set<std::string>& files,
-                          const std::set<std::string>& dirs,
-                          const std::string& goModule) {
+std::string resolveImport(
+    Lang lang, const std::string& file, const std::string& spec,
+    const std::set<std::string>& files, const std::set<std::string>& dirs,
+    const std::string& goModule,
+    const std::map<std::string, std::vector<std::string>>& byName) {
   if (spec.empty()) return "";
   std::string fileDir = dirName(file);
 
@@ -121,7 +121,31 @@ std::string resolveImport(Lang lang, const std::string& file,
       std::string rooted = normalizePath(spec);
       if (hasFile(files, rooted)) return dirName(rooted);
       if (dirs.count(rooted)) return rooted;
-      return "";
+
+      // C and C++ projects commonly rely on include directories. Rather than
+      // parse a build system, accept a unique path suffix: `"core.hpp"` can
+      // mean `src/core.hpp`. Ambiguity is resolved toward the including file.
+      auto it = byName.find(baseName(spec));
+      if (it == byName.end()) return "";
+      const std::string suffix = "/" + spec;
+      const std::string* best = nullptr;
+      int bestScore = -1;
+      for (const auto& candidate : it->second) {
+        if (candidate != spec && !endsWith(candidate, suffix)) continue;
+        std::vector<std::string> left = split(fileDir, '/');
+        std::vector<std::string> right = split(dirName(candidate), '/');
+        int score = 0;
+        while (score < static_cast<int>(left.size()) &&
+               score < static_cast<int>(right.size()) &&
+               left[score] == right[score]) {
+          ++score;
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          best = &candidate;
+        }
+      }
+      return best ? dirName(*best) : "";
     }
 
     case Lang::Rust: {
@@ -194,7 +218,10 @@ Graph buildGraph(const Git& git, const std::string& sha,
   }
 
   std::map<std::string, std::map<Lang, int>> languageLoc;
+  std::map<std::string, std::vector<std::string>> byName;
   std::vector<SourceFile> sources;
+
+  for (const auto& path : files) byName[baseName(path)].push_back(path);
 
   for (const auto& entry : entries) {
     Lang lang = detectLang(entry.path);
@@ -232,7 +259,7 @@ Graph buildGraph(const Git& git, const std::string& sha,
     const std::string from = dirName(source.path);
     for (const auto& spec : source.imports) {
       std::string target = resolveImport(source.lang, source.path, spec, files, dirs,
-                                         goModule);
+                                         goModule, byName);
       if (target.empty() || target == from) continue;
       graph.addEdge(from, target, 1);
     }

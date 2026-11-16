@@ -58,4 +58,26 @@ grep -q '"kind": "cycle"' "$TMP/check.json"
 grep -q "## strata check" "$TMP/check.md"
 grep -q "src/api" "$TMP/check.md"
 
+# C++ include directories: a unique suffix match connects cmd -> src.
+git init -q "$TMP/cpp"
+cd "$TMP/cpp"
+git config user.email "test@example.com"
+git config user.name "Test"
+mkdir -p src cmd
+cat > src/core.hpp <<'EOF'
+#pragma once
+inline int core() { return 1; }
+EOF
+git add . && git commit -qm "core"
+CPP_BASE="$(git rev-parse HEAD)"
+cat > cmd/main.cpp <<'EOF'
+#include "core.hpp"
+int main() { return core(); }
+EOF
+git add . && git commit -qm "cli"
+CPP_HEAD="$(git rev-parse HEAD)"
+
+"$BIN" diff "$CPP_BASE" "$CPP_HEAD" --repo . > "$TMP/cpp.txt"
+grep -q "+ dependency  cmd -> src" "$TMP/cpp.txt"
+
 echo "integration ok"
