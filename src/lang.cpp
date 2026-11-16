@@ -209,7 +209,7 @@ Lang detectLang(const std::string& path) {
   std::string ext = lower(path.substr(dot + 1));
   if (ext == "go") return Lang::Go;
   if (ext == "ts" || ext == "tsx" || ext == "js" || ext == "jsx" ||
-      ext == "mjs" || ext == "cjs") {
+      ext == "mjs" || ext == "cjs"|| ext == "mts" || ext == "cts") {
     return Lang::TypeScript;
   }
   if (ext == "py") return Lang::Python;

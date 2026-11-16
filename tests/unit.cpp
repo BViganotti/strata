@@ -56,6 +56,8 @@ void testLanguageDetection() {
   CHECK(detectLang("src/main.go") == Lang::Go);
   CHECK(detectLang("web/app.tsx") == Lang::TypeScript);
   CHECK(detectLang("web/app.mjs") == Lang::TypeScript);
+  CHECK(detectLang("web/app.mts") == Lang::TypeScript);
+  CHECK(detectLang("web/app.cts") == Lang::TypeScript);
   CHECK(detectLang("tools/run.py") == Lang::Python);
   CHECK(detectLang("cpp/src/server.hpp") == Lang::Cpp);
   CHECK(detectLang("src/lib.rs") == Lang::Rust);

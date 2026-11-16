@@ -95,7 +95,7 @@ std::string resolveImport(
       if (spec.front() != '.') return "";
       std::string base = joinPath(fileDir, spec);
       static const char* kExtensions[] = {"",     ".ts",  ".tsx",  ".js",
-                                          ".jsx", ".mjs", ".cjs",  ".json"};
+                                          ".jsx", ".mjs", ".cjs", ",mts", ".cts", ".json"};
       for (const char* extension : kExtensions) {
         if (hasFile(files, base + extension)) return dirName(base + extension);
       }
