@@ -101,5 +101,23 @@ RUST_HEAD="$(git rev-parse HEAD)"
 
 "$BIN" diff "$RUST_BASE" "$RUST_HEAD" --repo . > "$TMP/rust.txt"
 grep -q "+ dependency  src/server -> src/store" "$TMP/rust.txt"
+git init -q "$TMP/mts"
+cd "$TMP/mts"
+git config user.email "test@example.com"
+git config user.name "Test"
+mkdir -p src/util src/app
+cat > src/util/helper.mts <<'EOF'
+export const helper = () => 1;
+EOF
+git add . && git commit -qm "util"
+MTS_BASE="$(git rev-parse HEAD)"
+cat > src/app/main.mts <<'EOF'
+import { helper } from "../util/helper";
+export const run = () => helper();
+EOF
+git add . && git commit -qm "app"
+MTS_HEAD="$(git rev-parse HEAD)"
 
+"$BIN" diff "$MTS_BASE" "$MTS_HEAD" --repo . > "$TMP/mts.txt"
+grep -q "+ dependency  src/app -> src/util" "$TMP/mts.txt"
 echo "integration ok"
