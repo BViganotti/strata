@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>strata — the architecture time machine</title>
+  <meta name="description" content="A self-hosted architecture time machine for git repositories." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M4 8h24M6 14h20M9 20h14M12 26h8" />
+      </svg>
+      <div class="brand-text">
+        <span class="name">strata</span>
+        <span class="repo" id="repo">loading…</span>
+      </div>
+    </div>
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="top-actions">
+      <span class="loading" id="loading">loading</span>
+      <button class="icon" id="help" aria-label="Help">?</button>
+    </div>
+  </header>
+
+  <main id="stage-wrap">
+    <canvas id="stage"></canvas>
+
+    <div class="hint" id="hint">drag to pan · scroll to zoom · click a module</div>
+
+    <aside class="panel hidden" id="panel" aria-live="polite">
+      <button class="close" id="close" aria-label="Close panel">×</button>
+      <div id="panel-body"></div>
+    </aside>
+
+    <div class="toast hidden" id="toast"></div>
+  </main>
+
+  <footer class="bottom">
+    <div class="scrubber">
+      <button class="play" id="play" aria-label="Play history">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" /></svg>
+      </button>
+      <div class="track">
+        <canvas id="spark" height="26"></canvas>
+        <input id="timeline" type="range" min="0" max="0" value="0" step="1"
+               aria-label="Commit timeline" />
+      </div>
+      <div class="commit">
+        <span class="sha" id="sha">—</span>
+        <span class="subject" id="subject"></span>
+      </div>
+    </div>
+    <div class="footer-meta">
+      <span id="seq">0 / 0</span>
+      <span class="legend" id="legend"></span>
+    </div>
+  </footer>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-card">
+      <button class="close" id="modal-close" aria-label="Close help">×</button>
+      <h2>the architecture time machine</h2>
+      <p><strong>strata</strong> rebuilds the module dependency graph at every commit
+         in a repository, then lets you scrub through the result. Hover a module to
+         isolate its neighbourhood; click it for its history, dependencies and size.</p>
+      <h3>keys</h3>
+      <div class="keys">
+        <span><kbd>←</kbd><kbd>→</kbd> step through commits</span>
+        <span><kbd>space</kbd> play / pause</span>
+        <span><kbd>f</kbd> fit graph</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+      <h3>reading it</h3>
+      <ul>
+        <li>One circle is one directory. Size grows with lines of code.</li>
+        <li>An arrow means "imports": the source depends on the target.</li>
+        <li><span class="swatch red"></span> red nodes and edges form a dependency cycle.</li>
+        <li>New modules and edges flash white on the commit that introduced them.</li>
+        <li>Layer colours come from <code>.strata.json</code>; without it, colours are stable by path.</li>
+      </ul>
+      <p class="small">strata stores commit hashes, dates and subjects. It never reads or
+         stores author identities, and the server listens on localhost by default.</p>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

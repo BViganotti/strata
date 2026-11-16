@@ -1,0 +1,19 @@
+{
+  // strata checks itself in CI. Nodes are directories, so `src/` is one module
+  // and the CLI is another; the C++ port of redlite is a richer demo.
+  "layers": [
+    {"name": "core", "paths": ["src/**"]},
+    {"name": "cli", "paths": ["cmd/**"]}
+  ],
+  "allow": {
+    "core": [],
+    "cli": ["core"]
+  },
+  "ignore": [
+    "third_party/**",
+    "tests/**",
+    "examples/**",
+    "docs/**"
+  ],
+  "max_cycles": 0
+}

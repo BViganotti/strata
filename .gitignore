@@ -1,0 +1,9 @@
+build/
+.strata/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+*.o
+compile_commands.json
+node_modules/
