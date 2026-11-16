@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install SQLite headers (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel 4
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test the binary
+        run: |
+          ./build/strata version
+          ./build/strata ingest . --db "${{ runner.temp }}/strata.db" --limit 10
+          ./build/strata serve --help > /dev/null || true
