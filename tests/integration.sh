@@ -80,4 +80,26 @@ CPP_HEAD="$(git rev-parse HEAD)"
 "$BIN" diff "$CPP_BASE" "$CPP_HEAD" --repo . > "$TMP/cpp.txt"
 grep -q "+ dependency  cmd -> src" "$TMP/cpp.txt"
 
+# Rust: use crate::store::db should become a server -> store edge.
+git init -q "$TMP/rust"
+cd "$TMP/rust"
+git config user.email "test@example.com"
+git config user.name "Test"
+mkdir -p src/store
+cat > src/store/db.rs <<'EOF'
+pub fn open() -> u8 { 1 }
+EOF
+git add . && git commit -qm "store"
+RUST_BASE="$(git rev-parse HEAD)"
+mkdir -p src/server
+cat > src/server/mod.rs <<'EOF'
+use crate::store::db;
+pub fn boot() -> u8 { db::open() }
+EOF
+git add . && git commit -qm "server"
+RUST_HEAD="$(git rev-parse HEAD)"
+
+"$BIN" diff "$RUST_BASE" "$RUST_HEAD" --repo . > "$TMP/rust.txt"
+grep -q "+ dependency  src/server -> src/store" "$TMP/rust.txt"
+
 echo "integration ok"

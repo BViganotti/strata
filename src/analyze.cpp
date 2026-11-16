@@ -50,6 +50,19 @@ std::string replaceDots(const std::string& value) {
   return out;
 }
 
+std::string replacePathSeparators(const std::string& value) {
+  std::string out;
+  for (size_t i = 0; i < value.size(); ++i) {
+    if (value[i] == ':' && i + 1 < value.size() && value[i + 1] == ':') {
+      out += '/';
+      ++i;
+    } else {
+      out += value[i];
+    }
+  }
+  return out;
+}
+
 bool hasFile(const std::set<std::string>& files, const std::string& path) {
   return files.count(path) > 0;
 }
@@ -160,6 +173,16 @@ std::string resolveImport(
       std::string base = ".";
       if (startsWith(path, "crate:")) {
         path = path.substr(6);
+        // A crate's modules live under src/ by convention; fall back to the
+        // repository root for single-file crates.
+        bool hasSrc = false;
+        for (const auto& candidate : files) {
+          if (startsWith(candidate, "src/")) {
+            hasSrc = true;
+            break;
+          }
+        }
+        base = hasSrc ? "src" : ".";
       } else if (startsWith(path, "self:")) {
         path = path.substr(5);
         base = fileDir;
@@ -169,7 +192,7 @@ std::string resolveImport(
       } else {
         return "";
       }
-      std::string target = joinPath(base, replaceDots(path));
+      std::string target = joinPath(base, replacePathSeparators(path));
       if (hasFile(files, target + ".rs")) return dirName(target + ".rs");
       if (hasFile(files, target + "/mod.rs")) return target;
       if (dirs.count(target)) return target;
