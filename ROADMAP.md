@@ -83,7 +83,6 @@ These are intentionally small and self-contained:
 - Add a `--collapse` flag that maps every node to its top-level directory
 - Show the commit date in the timeline tooltip
 - Add a keyboard shortcut overlay link in the footer
-- Add a `make install` target and document `DESTDIR`
-- Add a golden test for C++ `#include` resolution
 - Improve the empty state when a repository has no source files
 - Add a `?` tooltip explaining the red cycle edges
+- Document `DESTDIR` for `make install` and add shell completions

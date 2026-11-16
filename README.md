@@ -76,8 +76,8 @@ $ ./build/strata serve
 ```
 
 `--limit` samples the first-parent history evenly; omit it to ingest every
-commit. Ingest is incremental in the sense that re-running it replaces that
-repository's snapshots; a true incremental cache is on the [roadmap](ROADMAP.md).
+commit. Re-running `ingest` replaces that repository's snapshots; a true
+incremental cache is on the [roadmap](ROADMAP.md).
 
 ### On a real repository
 
